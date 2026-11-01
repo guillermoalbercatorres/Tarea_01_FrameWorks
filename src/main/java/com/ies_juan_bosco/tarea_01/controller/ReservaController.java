@@ -2,7 +2,6 @@ package com.ies_juan_bosco.tarea_01.controller;
 
 import com.ies_juan_bosco.tarea_01.entity.Reserva;
 import com.ies_juan_bosco.tarea_01.repository.ReservaRepository;
-import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,7 +43,7 @@ public class ReservaController {
                 || reserva.getFranjaHoraria() == null || reserva.getFranjaHoraria().getId() == null) {
             return ResponseEntity.badRequest().body("La reserva debe indicar un aula y una franja horaria válidas.");
         }
-        boolean ocupada = reservaRepository.existsByFechaAndAulaIdAndFranjaHorariaId(
+        boolean ocupada = existsByFechaAndAulaIdAndFranjaHorariaId(
                 reserva.getFecha(), reserva.getAula().getId(), reserva.getFranjaHoraria().getId());
         if (ocupada) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
@@ -52,6 +51,16 @@ public class ReservaController {
         }
         reserva.setId(null);
         return ResponseEntity.status(HttpStatus.CREATED).body(reservaRepository.save(reserva));
+    }
+
+    // Comprueba en la lista de reservas si ya existe una con la misma fecha, aula y franja.
+    private boolean existsByFechaAndAulaIdAndFranjaHorariaId(LocalDate fecha, Long aulaId, Long franjaHorariaId) {
+        return reservaRepository.findAll().stream().anyMatch(reserva ->
+                fecha.equals(reserva.getFecha())
+                        && reserva.getAula() != null
+                        && aulaId.equals(reserva.getAula().getId())
+                        && reserva.getFranjaHoraria() != null
+                        && franjaHorariaId.equals(reserva.getFranjaHoraria().getId()));
     }
 
     @PutMapping("/reserva/{id}")
