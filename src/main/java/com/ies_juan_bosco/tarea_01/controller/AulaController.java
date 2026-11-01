@@ -61,11 +61,12 @@ public class AulaController {
     }
 
     //PATCH modifica la capacidad de un aula concreta.
-    @PatchMapping("/aula/{id}/{capacidad}")
-    public ResponseEntity<Aula> updateCapacidad(@PathVariable Long id, @PathVariable Integer capacidad) {
+    @PatchMapping("/aula/{id}/{capacidad}/{ordenadores}")
+    public ResponseEntity<Aula> updateCapacidad(@PathVariable Long id, @PathVariable Integer capacidad ,@PathVariable boolean ordenadores ) {
         return aulaRepository.findById(id)
                 .map(aula -> {    //Si el alumno existe en la BD ejecuta .map
                     aula.setCapacidad(capacidad);
+                    aula.setOrdenadores(ordenadores);
                     return ResponseEntity.ok(aulaRepository.save(aula));
                 })
                 .orElseGet(() -> {      //Si el alumno no existe en la BD ejecuta .orElseGet
