@@ -29,21 +29,6 @@ public class AulaController {
 
     @GetMapping("/aula/{id}")
     public ResponseEntity<Aula> findById(@PathVariable Long id) {
-/*      Optional<Alumno> alumnoOptional=  alumnoRepository.findById(id);
-        if (alumnoOptional.isPresent()){
-            //Devolvemos el alumno con el código 200 OK
-            return ResponseEntity.ok(alumnoOptional.get());
-        }
-        else{
-            //Devolvemos un código 404 Not Found
-            return ResponseEntity.notFound().build();
-        }*/
-
-        /*return alumnoRepository.findById(id)
-                .map(alumno ->                      //Si el alumno existe en la BD
-                        ResponseEntity.ok(alumno))
-                .orElseGet(() ->
-                    ResponseEntity.notFound().build());*/ //Si el alumno no existe en la BD
 
         return aulaRepository.findById(id)
                 .map(ResponseEntity::ok)    //Si el alumno existe en la BD
