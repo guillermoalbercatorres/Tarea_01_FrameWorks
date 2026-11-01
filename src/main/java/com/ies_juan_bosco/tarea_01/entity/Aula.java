@@ -24,6 +24,9 @@ public class Aula {
     @Column(nullable = false)
     private Integer capacidad;
 
+    @Column(nullable = false)
+    private boolean ordenadores;
+
     @OneToMany(mappedBy = "aula")
     @JsonIgnore
     private List<Reserva> reservas = new ArrayList<>();
@@ -41,6 +44,8 @@ public class Aula {
     public void setNombre(String nombre) { this.nombre = nombre; }
     public Integer getCapacidad() { return capacidad; }
     public void setCapacidad(Integer capacidad) { this.capacidad = capacidad; }
+    public boolean isOrdenadores() { return ordenadores; }
+    public void setOrdenadores(boolean ordenadores) { this.ordenadores = ordenadores; }
     public List<Reserva> getReservas() { return reservas; }
     public void setReservas(List<Reserva> reservas) { this.reservas = reservas; }
 }

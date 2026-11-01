@@ -23,7 +23,17 @@ public class AulaController {
     }
 
     @GetMapping("/aula")
-    public List<Aula> findAll() {
+    public List<Aula> findAll(@RequestParam(required = false) Boolean ordenadores,
+                              @RequestParam(required = false) Integer capacidad) {
+        if (ordenadores != null && capacidad != null) {
+            return aulaRepository.findByOrdenadoresAndCapacidadGreaterThan(ordenadores, capacidad);
+        }
+        if (ordenadores != null) {
+            return aulaRepository.findByOrdenadores(ordenadores);
+        }
+        if (capacidad != null) {
+            return aulaRepository.findByCapacidadGreaterThan(capacidad);
+        }
         return aulaRepository.findAll();
     }
 

@@ -29,6 +29,14 @@ La aplicación necesita MySQL activo en el host y puerto configurados. Si aparec
 
 Cada recurso ofrece consulta individual y de colección, creación, actualización completa y borrado. También hay operaciones `PATCH` para modificar campos concretos. Las reservas requieren IDs válidos de profesor, aula y franja horaria.
 
+### Consultas y validación de reservas
+
+- `GET /aula?ordenadores=true` devuelve aulas con ordenadores; `ordenadores=false` devuelve las que no tienen.
+- `GET /aula?capacidad=20` devuelve aulas con capacidad estrictamente superior a 20. Los dos filtros se pueden combinar: `/aula?ordenadores=true&capacidad=20`.
+- Al crear una reserva, la fecha de hoy está permitida, pero no una fecha anterior. La aplicación devuelve `400 Bad Request` si falta la fecha o es pasada; devuelve `409 Conflict` si el mismo aula ya está reservada para esa fecha y franja.
+- El filtro de aulas usa `/aula` como ruta de colección, acorde con las rutas de la API definidas en este proyecto. El ejemplo del enunciado `/aulas/21?ordenadores=true` mezcla un identificador con un filtro de colección; para filtrar se usa `/aula?ordenadores=true`.
+- El campo `ordenadores` se ha añadido a la entidad `Aula`; con `spring.jpa.hibernate.ddl-auto=update`, Hibernate actualizará el esquema al iniciar la aplicación. No se ha ejecutado ningún cambio manual ni destructivo en la base de datos.
+
 ## Decisiones y problemas encontrados
 
 - Se eligió JavaScript nativo para respetar el requisito de no usar frameworks y evitar dependencias de instalación.
