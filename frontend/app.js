@@ -3,8 +3,9 @@ const sections = {
     label: 'Aulas', endpoint: '/aula', singular: 'el aula',
     fields: [
       { key: 'nombre', label: 'Nombre', required: true, primary: true },
-      { key: 'capacidad', label: 'Capacidad', type: 'number', required: true }
-    ], columns: ['nombre', 'capacidad']
+      { key: 'capacidad', label: 'Capacidad', type: 'number', required: true },
+      { key: 'ordenadores', label: 'Tiene ordenadores', type: 'checkbox' }
+    ], columns: ['nombre', 'capacidad', 'ordenadores']
   },
   profesores: {
     label: 'Profesores', endpoint: '/profesor', singular: 'el profesor',
@@ -77,6 +78,7 @@ function setConnection(online) {
 
 function displayValue(value) {
   if (value == null || value === '') return '—';
+  if (typeof value === 'boolean') return value ? 'Sí' : 'No';
   if (typeof value === 'object') return value.nombre || value.correo || `${value.horaInicio || ''}${value.horaFin ? ` – ${value.horaFin}` : ''}` || `#${value.id ?? ''}`;
   return value;
 }
@@ -164,8 +166,12 @@ function makeInput(field, value) {
   } else {
     input = document.createElement('input');
     input.type = field.type || 'text';
-    if (input.type === 'number') input.min = '1';
-    input.value = value ?? '';
+    if (input.type === 'checkbox') {
+      input.checked = Boolean(value);
+    } else {
+      if (input.type === 'number') input.min = '1';
+      input.value = value ?? '';
+    }
   }
   input.name = field.key;
   input.required = Boolean(field.required);
@@ -213,8 +219,12 @@ async function saveRecord(event) {
   const section = sections[currentKey];
   const data = {};
   for (const field of section.fields) {
-    const value = form.elements[field.key].value;
-    data[field.key] = field.relation ? { id: Number(value) } : field.type === 'number' ? Number(value) : value;
+    const input = form.elements[field.key];
+    const value = input.value;
+    data[field.key] = field.type === 'checkbox' ? input.checked
+      : field.relation ? { id: Number(value) }
+      : field.type === 'number' ? Number(value)
+      : value;
   }
   try {
     await request(editingId ? `${section.endpoint}/${editingId}` : section.endpoint, {
