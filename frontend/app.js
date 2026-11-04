@@ -25,7 +25,6 @@ const sections = {
     label: 'Reservas', endpoint: '/reserva', singular: 'la reserva',
     fields: [
       { key: 'fecha', label: 'Fecha de la reserva', type: 'date', required: true, primary: true },
-      { key: 'fechaInsercion', label: 'Fecha de creación', type: 'date', required: true },
       { key: 'profesor', label: 'Profesor', relation: 'profesores', required: true },
       { key: 'aula', label: 'Aula', relation: 'aulas', required: true },
       { key: 'franjaHoraria', label: 'Franja horaria', relation: 'franjas', required: true }
@@ -195,10 +194,7 @@ async function openForm(record = null) {
     }
   }
   document.querySelector('#form-title').textContent = record ? 'Editar registro' : 'Nuevo registro';
-  const visibleFields = currentKey === 'reservas' && record
-    ? section.fields.filter(field => field.key !== 'fechaInsercion')
-    : section.fields;
-  visibleFields.forEach(field => {
+  section.fields.forEach(field => {
     const label = document.createElement('label'); label.className = 'field';
     const caption = document.createElement('span'); caption.textContent = field.label;
     label.append(caption, makeInput(field, record?.[field.key])); form.append(label);
@@ -221,10 +217,7 @@ async function saveRecord(event) {
   event.preventDefault();
   const section = sections[currentKey];
   const data = {};
-  const fieldsToSave = currentKey === 'reservas' && editingId
-    ? section.fields.filter(field => field.key !== 'fechaInsercion')
-    : section.fields;
-  for (const field of fieldsToSave) {
+  for (const field of section.fields) {
     const input = form.elements[field.key];
     const value = input.value;
     data[field.key] = field.type === 'checkbox' ? input.checked
