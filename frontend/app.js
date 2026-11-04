@@ -195,7 +195,10 @@ async function openForm(record = null) {
     }
   }
   document.querySelector('#form-title').textContent = record ? 'Editar registro' : 'Nuevo registro';
-  section.fields.forEach(field => {
+  const visibleFields = currentKey === 'reservas' && record
+    ? section.fields.filter(field => field.key !== 'fechaInsercion')
+    : section.fields;
+  visibleFields.forEach(field => {
     const label = document.createElement('label'); label.className = 'field';
     const caption = document.createElement('span'); caption.textContent = field.label;
     label.append(caption, makeInput(field, record?.[field.key])); form.append(label);
@@ -218,7 +221,10 @@ async function saveRecord(event) {
   event.preventDefault();
   const section = sections[currentKey];
   const data = {};
-  for (const field of section.fields) {
+  const fieldsToSave = currentKey === 'reservas' && editingId
+    ? section.fields.filter(field => field.key !== 'fechaInsercion')
+    : section.fields;
+  for (const field of fieldsToSave) {
     const input = form.elements[field.key];
     const value = input.value;
     data[field.key] = field.type === 'checkbox' ? input.checked
@@ -227,9 +233,15 @@ async function saveRecord(event) {
       : value;
   }
   try {
-    await request(editingId ? `${section.endpoint}/${editingId}` : section.endpoint, {
-      method: editingId ? 'PUT' : 'POST', body: JSON.stringify(data)
-    });
+    if (currentKey === 'reservas' && editingId) {
+      const patchUrl = `${section.endpoint}/${editingId}/${encodeURIComponent(data.fecha)}`
+        + `/${data.profesor.id}/${data.aula.id}/${data.franjaHoraria.id}`;
+      await request(patchUrl, { method: 'PATCH' });
+    } else {
+      await request(editingId ? `${section.endpoint}/${editingId}` : section.endpoint, {
+        method: editingId ? 'PUT' : 'POST', body: JSON.stringify(data)
+      });
+    }
     closeForm();
     await loadRecords();
     showNotice('Registro guardado correctamente.', 'success');
