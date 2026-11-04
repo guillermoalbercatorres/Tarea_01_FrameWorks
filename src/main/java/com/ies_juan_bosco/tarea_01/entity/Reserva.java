@@ -43,9 +43,9 @@ public class Reserva {
 
     public Reserva() {}
 
-    public Reserva(LocalDate fecha, LocalDate fechaInsercion, Profesor profesor, Aula aula, FranjaHoraria franjaHoraria) {
+    public Reserva(LocalDate fecha, Profesor profesor, Aula aula, FranjaHoraria franjaHoraria) {
         this.fecha = fecha;
-        this.fechaInsercion = fechaInsercion;
+        this.fechaInsercion = LocalDate.now();
         this.profesor = profesor;
         this.aula = aula;
         this.franjaHoraria = franjaHoraria;

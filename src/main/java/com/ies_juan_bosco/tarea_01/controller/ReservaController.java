@@ -1,6 +1,9 @@
 package com.ies_juan_bosco.tarea_01.controller;
 
 import com.ies_juan_bosco.tarea_01.entity.Reserva;
+import com.ies_juan_bosco.tarea_01.repository.AulaRepository;
+import com.ies_juan_bosco.tarea_01.repository.FranjaHorariaRepository;
+import com.ies_juan_bosco.tarea_01.repository.ProfesorRepository;
 import com.ies_juan_bosco.tarea_01.repository.ReservaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,9 +17,18 @@ import java.util.List;
 public class ReservaController {
     @Autowired
     private final ReservaRepository reservaRepository;
+    private final ProfesorRepository profesorRepository;
+    private final AulaRepository aulaRepository;
+    private final FranjaHorariaRepository franjaHorariaRepository;
 
-    public ReservaController(ReservaRepository reservaRepository) {
+    public ReservaController(ReservaRepository reservaRepository,
+                             ProfesorRepository profesorRepository,
+                             AulaRepository aulaRepository,
+                             FranjaHorariaRepository franjaHorariaRepository) {
         this.reservaRepository = reservaRepository;
+        this.profesorRepository = profesorRepository;
+        this.aulaRepository = aulaRepository;
+        this.franjaHorariaRepository = franjaHorariaRepository;
     }
 
     @GetMapping("/reserva")
@@ -81,11 +93,25 @@ public class ReservaController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/reserva/{id}/{fecha}")
-    public ResponseEntity<Reserva> updateFecha(@PathVariable Long id, @PathVariable LocalDate fecha) {
+    @PatchMapping("/reserva/{id}/{fecha}/{profesor}/{aula}/{franjaHoraria}")
+    public ResponseEntity<Reserva> updateFecha(@PathVariable Long id,
+                                               @PathVariable LocalDate fecha,
+                                               @PathVariable Long profesor,
+                                               @PathVariable Long aula,
+                                               @PathVariable Long franjaHoraria) {
+        var profesorEncontrado = profesorRepository.findById(profesor);
+        var aulaEncontrada = aulaRepository.findById(aula);
+        var franjaEncontrada = franjaHorariaRepository.findById(franjaHoraria);
+        if (profesorEncontrado.isEmpty() || aulaEncontrada.isEmpty() || franjaEncontrada.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
         return reservaRepository.findById(id)
                 .map(reserva -> {
                     reserva.setFecha(fecha);
+                    reserva.setProfesor(profesorEncontrado.get());
+                    reserva.setAula(aulaEncontrada.get());
+                    reserva.setFranjaHoraria(franjaEncontrada.get());
                     return ResponseEntity.ok(reservaRepository.save(reserva));
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());

@@ -54,11 +54,12 @@ public class ProfesorController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/profesor/{id}/{correo}")
-    public ResponseEntity<Profesor> updateCorreo(@PathVariable Long id, @PathVariable String correo) {
+    @PatchMapping("/profesor/{id}/{correo}/{nombre}")
+    public ResponseEntity<Profesor> updateCorreo(@PathVariable Long id, @PathVariable String correo,@PathVariable String nombre) {
         return profesorRepository.findById(id)
                 .map(profesor -> {
                     profesor.setCorreo(correo);
+                    profesor.setNombre(nombre);
                     return ResponseEntity.ok(profesorRepository.save(profesor));
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
